@@ -54,7 +54,6 @@ func main() {
 			return
 		}
 
-		w.WriteHeader(200)
 		ext := path.Ext(requestPath)
 		switch ext {
 		case ".txt":
@@ -78,6 +77,7 @@ func main() {
 		default:
 			w.Header().Set("Content-Type", "application/octet-stream")
 		}
+		w.WriteHeader(200)
 
 		buf := bytes.NewBuffer(nil)
 		file, _ := os.Open(requestPath)
