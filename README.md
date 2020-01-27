@@ -4,27 +4,46 @@ Static server for development
 
 ## Usage
 
+There is two way to use it:
+
+- by cloning this project
+- by using the `go get` command
+
+### Cloning this project
+
 Clone or download this repostory and use `build/` binary for your operating system.
 
-### Windows
+#### Windows
 
 ```
 ./build/windows/go-static-server.exe
 ```
 
-### Linux
+#### Linux
 
 ```
 ./build/linux/go-static-server
 ```
 
-### Mac OS
+#### Mac OS
 
 ```
 ./build/darwin/go-static-server
 ```
 
 Build binary is supported 64-bit only.
+
+### Using the `go get` command
+
+Simply run the command
+
+```bash
+ go get github.com/ysugimoto/go-static-server
+```
+in your shell.
+
+If you have added the `$GOPATH/bin` to your path, you are able to run the command `go-static-server`.  
+Otherwise, you'll find the compiled version in the `$GOPATH/bin/go-static-server` directory.
 
 ## Command Line options
 
