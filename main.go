@@ -93,37 +93,16 @@ func main() {
 			return
 		}
 
-		ext := filepath.Ext(requestPath)
-		switch ext {
-		case ".txt":
-			w.Header().Set("Content-Type", "text/plain")
-		case ".html":
-		case ".htm":
-			w.Header().Set("Content-Type", "text/html")
-		case ".gif":
-			w.Header().Set("Content-Type", "image/gif")
-		case ".jpg":
-		case ".jpeg":
-			w.Header().Set("Content-Type", "image/jpeg")
-		case ".png":
-			w.Header().Set("Content-Type", "image/png")
-		case ".js":
-			w.Header().Set("Content-Type", "application/javascript")
-		case ".json":
-			w.Header().Set("Content-Type", "application/json")
-		case ".css":
-			w.Header().Set("Content-Type", "text/css")
-		default:
-			w.Header().Set("Content-Type", "application/octet-stream")
-		}
-		w.WriteHeader(200)
-
 		buf := bytes.NewBuffer(nil)
 		file, _ := os.Open(requestPath)
 		io.Copy(buf, file)
+
+		content := buf.Bytes()
+		w.Header().Set("Content-Type", http.DetectContentType(content[:512]))
+		w.WriteHeader(200)
 		defer file.Close()
 
-		w.Write(buf.Bytes())
+		w.Write(content)
 	})
 	http.ListenAndServe(port, nil)
 }
