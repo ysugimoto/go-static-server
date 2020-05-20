@@ -5,10 +5,11 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
-	"path"
-	"regexp"
+	"path/filepath"
+	"strings"
 )
 
 func main() {
@@ -33,20 +34,17 @@ func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		url := r.URL
 
-		matched, err := regexp.Match("/$", []byte(url.Path))
-		if err != nil {
-			fmt.Println("Path find error")
+		requestPath := filepath.Clean(filepath.Join(documentRoot, url.Path))
+
+		if !strings.HasPrefix(requestPath, documentRoot) {
+			w.WriteHeader(403)
+			w.Header().Set("Content-Type", "text/plain")
+			w.Write([]byte("Forbidden"))
 			return
 		}
 
-		if matched {
-			url.Path += "index.html"
-		}
-
-		requestPath := documentRoot + url.Path
-
 		fmt.Printf("%v\n", requestPath)
-		_, statErr := os.Stat(requestPath)
+		statInfo, statErr := os.Stat(requestPath)
 		if statErr != nil {
 			w.WriteHeader(404)
 			w.Header().Set("Content-Type", "text/plain")
@@ -54,7 +52,48 @@ func main() {
 			return
 		}
 
-		ext := path.Ext(requestPath)
+		if statInfo.IsDir() {
+			entries, readDirErr := ioutil.ReadDir(requestPath)
+			if readDirErr != nil {
+				w.WriteHeader(500)
+				w.Header().Set("Content-Type", "text/plain")
+				w.Write([]byte(fmt.Sprintf("%v\n", readDirErr)))
+				return
+			}
+
+			entryLinks := make([]string, 0)
+			for _, entry := range entries {
+				relPath := strings.Replace(filepath.Join(requestPath, entry.Name()), documentRoot, "" , 1)
+				var entryType string
+				if entry.IsDir() {
+					entryType = "D"
+				} else {
+					entryType = "F"
+				}
+				entryLinks = append(entryLinks, fmt.Sprintf("<li>[<span>%s</span>] <a href='%s'>%s</a></li>", entryType, relPath, entry.Name()))
+			}
+
+			w.WriteHeader(200)
+			w.Header().Set("Content-Type", "text/html")
+			w.Write([]byte(fmt.Sprintf(`
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Directory listing of %s</title>
+		<style>span { min-width: 1em; display: inline-block; text-align: center; }</style>
+	</head>
+	<body>
+		<p>Directory listing of %s</p>
+		<ol>
+			%s
+		</ol>
+	</body>
+</html>`, url.Path, url.Path, strings.Join(entryLinks, "\n"))))
+			return
+		}
+
+		ext := filepath.Ext(requestPath)
 		switch ext {
 		case ".txt":
 			w.Header().Set("Content-Type", "text/plain")
