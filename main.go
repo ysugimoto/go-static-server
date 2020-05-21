@@ -14,6 +14,7 @@ import (
 
 func main() {
 	var (
+		bindIp       string
 		documentRoot string
 		portNumber   int
 	)
@@ -26,10 +27,11 @@ func main() {
 
 	flag.IntVar(&portNumber, "p", 8888, "Listen port number")
 	flag.StringVar(&documentRoot, "d", cwd, "Document Root")
+	flag.StringVar(&bindIp, "b", "0.0.0.0", "Listen on IP")
 	flag.Parse()
 
 	fmt.Printf("DocumentRoot is %s\n", documentRoot)
-	fmt.Printf("Listen 0.0.0.0:%d...\n", portNumber)
+	fmt.Printf("Listen %s:%d...\n", bindIp, portNumber)
 	port := ":" + fmt.Sprint(portNumber)
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		url := r.URL
@@ -104,5 +106,5 @@ func main() {
 
 		w.Write(content)
 	})
-	http.ListenAndServe(port, nil)
+	http.ListenAndServe(bindIp + port, nil)
 }
