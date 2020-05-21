@@ -39,17 +39,3 @@ go-static-server -p 9999 -d ~/server
 
 Will listen `0.0.0.0:9999` and document root is `$HOME/server`. 
 
-## Supported extension (MimeTypes)
-
-| Extension  | Description         | Serve mimetypes          |
-| ---------- |:-------------------:|:------------------------:|
-| .html/.htm | HTML Document       | text/html                |
-| .css       | StyleSheet Document | text/css                 |
-| .js        | JavaScript Source   | application/javascript   |
-| .json      | JSON Source         | application/json         |
-| .gif       | GIF Image           | image/gif                |
-| .jpg/.jpeg | JPEG Image          | image/jpeg               |
-| .png       | PNG Image           | image/png                |
-| .txt       | Plain Text          | text/plain               |
-| (other)    | Octet-Stream        | application/octet-stream |
-
